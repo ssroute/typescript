@@ -29,7 +29,14 @@
     "eurostat"
   ],
   "author": "ssroute",
-  "license": "EUPL-1.2",
+  "license": "MIT",
+  "homepage": "https://github.com/ssroute/typescript",
+  "bugs": {
+    "url": "https://github.com/ssroute/typescript/issues"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
   "dependencies": {
     "@ssroute/data-eurostat": "^0.2.1"
   },

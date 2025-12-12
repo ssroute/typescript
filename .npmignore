@@ -1,0 +1,49 @@
+# Source files
+src/
+tests/
+
+# Development files
+*.config.js
+*.config.cjs
+tsconfig.json
+tsconfig.test.json
+jest.config.js
+eslint.config.js
+eslint.config.cjs
+
+# Build artifacts (only dist/ should be published)
+*.tsbuildinfo
+
+# Development tools
+.idea/
+.vscode/
+.DS_Store
+
+# Testing
+coverage/
+*.log
+
+# Git
+.git/
+.gitignore
+
+# Dependencies
+node_modules/
+
+# Package manager files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+.travis.yml
+
+# Documentation (keep README.md and LICENSE, exclude others)
+*.md
+!README.md
+
+# Type definitions (only dist/ should be published)
+types/
+
