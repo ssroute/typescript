@@ -31,6 +31,7 @@ export function findRoute(graph: Graph, origin: Point, destination: Point): Rout
 
   if (startNode.id === endNode.id) {
     // Same node - return trivial route
+    // GeoJSON coordinates are in [longitude, latitude] order (WGS84/EPSG:4326)
     return {
       route: {
         type: 'LineString',
@@ -48,6 +49,7 @@ export function findRoute(graph: Graph, origin: Point, destination: Point): Rout
   }
 
   // Convert path to GeoJSON LineString
+  // GeoJSON coordinates are in [longitude, latitude] order (WGS84/EPSG:4326)
   const coordinates: [number, number][] = aStarResult.path.map((nodeId) => {
     const node = graph.getNode(nodeId);
     if (!node) {

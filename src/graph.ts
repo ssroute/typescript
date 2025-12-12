@@ -22,6 +22,8 @@ export class Graph {
 
   /**
    * Load graph data from @ssroute/data-eurostat and build adjacency list
+   * 
+   * Graph nodes are expected to be in WGS84/EPSG:4326 coordinate system.
    */
   constructor() {
     const nodesData = getNodes();
@@ -38,7 +40,7 @@ export class Graph {
     this.minLon = Infinity;
     this.maxLon = -Infinity;
 
-    // Load nodes - data is an array of [id, lon, lat]
+    // Load nodes - data is an array of [id, lon, lat] in WGS84/EPSG:4326
     if (Array.isArray(nodesData)) {
       for (const nodeData of nodesData) {
         if (Array.isArray(nodeData) && nodeData.length >= 3) {

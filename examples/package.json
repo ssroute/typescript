@@ -1,0 +1,14 @@
+{
+  "name": "ssroute-example",
+  "version": "1.0.0",
+  "description": "Minimal example server for displaying maritime routes on OpenStreetMap",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
+
+

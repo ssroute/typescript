@@ -42,6 +42,14 @@ const distance = findDistance(
 console.log(`Distance: ${distance} nm`);
 ```
 
+## Coordinate System
+
+All coordinates must be in **WGS84/EPSG:4326** format:
+- **Latitude (lat)**: -90 to 90 degrees (decimal degrees)
+- **Longitude (lon)**: -180 to 180 degrees (decimal degrees)
+
+Distance calculations use the WGS84 Earth equatorial radius (6,378,137 meters = 3,443.918 nautical miles).
+
 ## API
 
 ### `findRoute(origin: Point, destination: Point): RouteResult`
@@ -49,8 +57,8 @@ console.log(`Distance: ${distance} nm`);
 Finds the shortest route between two geographic points.
 
 **Parameters:**
-- `origin`: Starting point with `lat` (latitude) and `lon` (longitude) in decimal degrees
-- `destination`: Ending point with `lat` (latitude) and `lon` (longitude) in decimal degrees
+- `origin`: Starting point with `lat` (latitude) and `lon` (longitude) in decimal degrees (WGS84/EPSG:4326)
+- `destination`: Ending point with `lat` (latitude) and `lon` (longitude) in decimal degrees (WGS84/EPSG:4326)
 
 **Returns:**
 - `route`: GeoJSON LineString representing the route path
@@ -66,8 +74,8 @@ Finds the shortest route between two geographic points.
 Finds the shortest distance between two geographic points without returning the full route.
 
 **Parameters:**
-- `origin`: Starting point with `lat` (latitude) and `lon` (longitude) in decimal degrees
-- `destination`: Ending point with `lat` (latitude) and `lon` (longitude) in decimal degrees
+- `origin`: Starting point with `lat` (latitude) and `lon` (longitude) in decimal degrees (WGS84/EPSG:4326)
+- `destination`: Ending point with `lat` (latitude) and `lon` (longitude) in decimal degrees (WGS84/EPSG:4326)
 
 **Returns:**
 - Distance in nautical miles
@@ -99,7 +107,7 @@ This package uses the **A\* pathfinding algorithm** to find optimal routes:
 - **H-cost**: Heuristic estimate (Haversine distance) to the destination
 - **F-cost**: G + H (used for priority queue ordering)
 
-The algorithm finds the nearest graph nodes to the input coordinates using the Haversine formula, then searches for the shortest path through the maritime routing graph.
+The algorithm finds the nearest graph nodes to the input coordinates using the Haversine formula with WGS84 Earth radius, then searches for the shortest path through the maritime routing graph. The Haversine formula provides a spherical approximation of Earth's surface, which is suitable for maritime routing applications.
 
 ## Data Source
 

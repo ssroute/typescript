@@ -19,9 +19,11 @@ function getGraph(): Graph {
 
 /**
  * Find the shortest route between two geographic points
+ * 
+ * Coordinates must be in WGS84/EPSG:4326 format (decimal degrees).
  *
- * @param origin - Starting point with latitude and longitude
- * @param destination - Ending point with latitude and longitude
+ * @param origin - Starting point with latitude and longitude (WGS84/EPSG:4326)
+ * @param destination - Ending point with latitude and longitude (WGS84/EPSG:4326)
  * @returns Route result containing GeoJSON LineString, distance in nautical miles, and waypoint count
  * @throws Error if route cannot be found
  *
@@ -42,9 +44,11 @@ export function findRoute(origin: Point, destination: Point): RouteResult {
 
 /**
  * Find the shortest distance between two geographic points (without full route)
+ * 
+ * Coordinates must be in WGS84/EPSG:4326 format (decimal degrees).
  *
- * @param origin - Starting point with latitude and longitude
- * @param destination - Ending point with latitude and longitude
+ * @param origin - Starting point with latitude and longitude (WGS84/EPSG:4326)
+ * @param destination - Ending point with latitude and longitude (WGS84/EPSG:4326)
  * @returns Distance in nautical miles
  * @throws Error if route cannot be found
  *

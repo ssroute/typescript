@@ -1,7 +1,11 @@
 import { LineString } from 'geojson';
 
 /**
- * Geographic point with latitude and longitude
+ * Geographic point with latitude and longitude in WGS84/EPSG:4326 coordinate system
+ * 
+ * Coordinates are in decimal degrees:
+ * - Latitude (lat): -90 to 90 degrees
+ * - Longitude (lon): -180 to 180 degrees
  */
 export interface Point {
   lat: number;
