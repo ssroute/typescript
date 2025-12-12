@@ -2,12 +2,23 @@ import { getNodes, getEdges } from '@ssroute/data-eurostat';
 import { GraphNode, AdjacencyEntry } from './types';
 
 /**
+ * Grid cell key for spatial hash
+ */
+type GridKey = string;
+
+/**
  * Graph data structure for maritime routing
  */
 export class Graph {
   private nodes: Map<number, GraphNode>;
   private adjacencyList: Map<number, AdjacencyEntry[]>;
   private nodesArray: GraphNode[];
+  private spatialGrid: Map<GridKey, GraphNode[]>;
+  private gridResolution: number;
+  private minLat: number;
+  private maxLat: number;
+  private minLon: number;
+  private maxLon: number;
 
   /**
    * Load graph data from @ssroute/data-eurostat and build adjacency list
@@ -19,6 +30,13 @@ export class Graph {
     this.nodes = new Map();
     this.adjacencyList = new Map();
     this.nodesArray = [];
+    this.spatialGrid = new Map();
+    
+    // Initialize bounds
+    this.minLat = Infinity;
+    this.maxLat = -Infinity;
+    this.minLon = Infinity;
+    this.maxLon = -Infinity;
 
     // Load nodes - data is an array of [id, lon, lat]
     if (Array.isArray(nodesData)) {
@@ -32,9 +50,26 @@ export class Graph {
           };
           this.nodes.set(id, node);
           this.nodesArray.push(node);
+          
+          // Update bounds
+          this.minLat = Math.min(this.minLat, lat);
+          this.maxLat = Math.max(this.maxLat, lat);
+          this.minLon = Math.min(this.minLon, lon);
+          this.maxLon = Math.max(this.maxLon, lon);
         }
       }
     }
+
+    // Calculate grid resolution based on node count
+    // Aim for roughly 10-50 nodes per cell on average
+    const nodeCount = this.nodesArray.length;
+    const targetNodesPerCell = 20;
+    const totalCells = Math.ceil(nodeCount / targetNodesPerCell);
+    const gridSize = Math.ceil(Math.sqrt(totalCells));
+    this.gridResolution = gridSize;
+    
+    // Build spatial grid
+    this.buildSpatialGrid();
 
     // Build adjacency list from edges - data is an array of [from, to, length_nm]
     // Make graph bidirectional by adding edges in both directions
@@ -95,5 +130,87 @@ export class Graph {
    */
   getNeighbors(nodeId: number): AdjacencyEntry[] {
     return this.adjacencyList.get(nodeId) || [];
+  }
+
+  /**
+   * Get nodes in nearby grid cells for spatial queries
+   *
+   * @param lat - Latitude
+   * @param lon - Longitude
+   * @param searchRadius - Number of grid cells to search in each direction (default: 1)
+   * @returns Array of nodes in nearby grid cells
+   */
+  getNodesNearby(lat: number, lon: number, searchRadius: number = 1): GraphNode[] {
+    const gridLat = this.latToGrid(lat);
+    const gridLon = this.lonToGrid(lon);
+    const nodes: GraphNode[] = [];
+
+    // Search nearby grid cells
+    for (let dLat = -searchRadius; dLat <= searchRadius; dLat++) {
+      for (let dLon = -searchRadius; dLon <= searchRadius; dLon++) {
+        const key = this.gridKey(gridLat + dLat, gridLon + dLon);
+        const cellNodes = this.spatialGrid.get(key);
+        if (cellNodes) {
+          nodes.push(...cellNodes);
+        }
+      }
+    }
+
+    return nodes;
+  }
+
+  /**
+   * Build spatial grid index from all nodes
+   */
+  private buildSpatialGrid(): void {
+    this.spatialGrid.clear();
+
+    for (const node of this.nodesArray) {
+      const gridLat = this.latToGrid(node.lat);
+      const gridLon = this.lonToGrid(node.lon);
+      const key = this.gridKey(gridLat, gridLon);
+
+      if (!this.spatialGrid.has(key)) {
+        this.spatialGrid.set(key, []);
+      }
+      this.spatialGrid.get(key)!.push(node);
+    }
+  }
+
+  /**
+   * Convert latitude to grid coordinate
+   *
+   * @param lat - Latitude
+   * @returns Grid latitude coordinate
+   */
+  private latToGrid(lat: number): number {
+    const latRange = this.maxLat - this.minLat;
+    if (latRange === 0) return 0;
+    const normalized = (lat - this.minLat) / latRange;
+    return Math.floor(normalized * this.gridResolution);
+  }
+
+  /**
+   * Convert longitude to grid coordinate
+   *
+   * @param lon - Longitude
+   * @returns Grid longitude coordinate
+   */
+  private lonToGrid(lon: number): number {
+    const lonRange = this.maxLon - this.minLon;
+    if (lonRange === 0) return 0;
+    const normalized = (lon - this.minLon) / lonRange;
+    return Math.floor(normalized * this.gridResolution);
+  }
+
+  /**
+   * Create grid key from grid coordinates
+   *
+   * @param gridLat - Grid latitude
+   * @param gridLon - Grid longitude
+   * @returns Grid key string
+   */
+  private gridKey(gridLat: number, gridLon: number): GridKey {
+    return `${gridLat},${gridLon}`;
   }
 }

@@ -2,15 +2,7 @@ import { Point, RouteResult } from './types';
 import { Graph } from './graph';
 import { findNearestNode } from './nearest-node';
 import { haversineDistance } from './heuristics';
-
-/**
- * Priority queue entry for A* algorithm
- */
-interface PriorityQueueEntry {
-  nodeId: number;
-  fCost: number;
-  gCost: number;
-}
+import { PriorityQueue } from './priority-queue';
 
 /**
  * A* pathfinding result
@@ -88,8 +80,9 @@ function aStar(graph: Graph, startId: number, goalId: number): AStarResult {
     throw new Error(`Goal node ${goalId} not found`);
   }
 
-  // Open set: nodes to be evaluated (priority queue)
-  const openSet: PriorityQueueEntry[] = [{ nodeId: startId, fCost: 0, gCost: 0 }];
+  // Open set: nodes to be evaluated (binary heap priority queue)
+  const openSet = new PriorityQueue();
+  openSet.push({ nodeId: startId, fCost: 0, gCost: 0 });
 
   // Closed set: nodes already evaluated
   const closedSet = new Set<number>();
@@ -101,10 +94,9 @@ function aStar(graph: Graph, startId: number, goalId: number): AStarResult {
   // Parent map for path reconstruction
   const parent = new Map<number, number>();
 
-  while (openSet.length > 0) {
+  while (!openSet.isEmpty()) {
     // Get node with lowest f-cost
-    openSet.sort((a, b) => a.fCost - b.fCost);
-    const current = openSet.shift()!;
+    const current = openSet.pop()!;
 
     if (current.nodeId === goalId) {
       // Reconstruct path
@@ -115,16 +107,8 @@ function aStar(graph: Graph, startId: number, goalId: number): AStarResult {
         nodeId = parent.get(nodeId);
       }
 
-      // Calculate total distance
-      let totalDistance = 0;
-      for (let i = 0; i < path.length - 1; i++) {
-        const neighbors = graph.getNeighbors(path[i]);
-        const nextNodeId = path[i + 1];
-        const edge = neighbors.find((n) => n.nodeId === nextNodeId);
-        if (edge) {
-          totalDistance += edge.distance;
-        }
-      }
+      // Use stored gCost instead of recalculating
+      const totalDistance = gCost.get(goalId) ?? 0;
 
       return { path, distance: totalDistance };
     }
@@ -155,11 +139,11 @@ function aStar(graph: Graph, startId: number, goalId: number): AStarResult {
         const fCost = tentativeGCost + hCost;
 
         // Add to open set if not already there, or update if better
-        const existingIndex = openSet.findIndex((e) => e.nodeId === neighbor.nodeId);
-        if (existingIndex === -1) {
+        if (!openSet.has(neighbor.nodeId)) {
           openSet.push({ nodeId: neighbor.nodeId, fCost, gCost: tentativeGCost });
-        } else if (fCost < openSet[existingIndex].fCost) {
-          openSet[existingIndex] = { nodeId: neighbor.nodeId, fCost, gCost: tentativeGCost };
+        } else {
+          // Update existing entry if this path is better
+          openSet.update(neighbor.nodeId, fCost, tentativeGCost);
         }
       }
     }
