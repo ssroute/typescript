@@ -31,7 +31,7 @@
   "author": "ssroute",
   "license": "EUPL-1.2",
   "dependencies": {
-    "@ssroute/data-eurostat": "^0.2.0"
+    "@ssroute/data-eurostat": "^0.2.1"
   },
   "devDependencies": {
     "@types/geojson": "^7946.0.16",
