@@ -1,6 +1,6 @@
 {
   "name": "@ssroute/typescript",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "TypeScript package for finding shortest maritime routes between two points using A* algorithm",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
